@@ -95,7 +95,7 @@ for _, row in proc.iterrows():
     acts_set = set(g['ActivityName'].tolist())
     was_return = pid in return_pids
 
-    # 5.1. Отсутствует обязательный этап
+    # Отсутствует обязательный этап
     if res == 'fulfilled' and not was_return:
         mand = mandatory_contract if req == 'contract' else mandatory_standard
         for m in mand:
@@ -105,14 +105,14 @@ for _, row in proc.iterrows():
                     f'Успешная заявка типа {req} не содержит этап "{m}"'
                 ))
 
-    # 5.2. Contract без проверки договора
+    # Contract без проверки договора
     if res == 'fulfilled' and req == 'contract' and 'Проверка договора' not in acts_set:
         anomalies.append((
             pid, 'Нет проверки договора',
             'Договорная заявка завершена без юридической проверки'
         ))
 
-    # 5.3. Несоответствие роли
+    # Несоответствие роли
     for _, ev in g.iterrows():
         act, role = ev['ActivityName'], ev['Role']
         if act in role_map and pd.notna(role) and role not in ('system', 'auditor'):
@@ -122,7 +122,7 @@ for _, row in proc.iterrows():
                     f'Этап "{act}" выполнен ролью {role}, ожидается {role_map[act]}'
                 ))
 
-    # 5.4. Нарушен порядок времени
+    # Нарушен порядок времени
     times = g.sort_values('EventIndex')['Timestamp'].tolist()
     if any(times[i] > times[i+1] for i in range(len(times)-1)):
         anomalies.append((
@@ -130,7 +130,7 @@ for _, row in proc.iterrows():
             'Метки Timestamp не возрастают по EventIndex'
         ))
 
-    # 5.5. События после Завершения
+    # События после Завершения
     comp = g[g['ActivityName'] == 'Завершение']
     if not comp.empty:
         end_idx = comp['EventIndex'].min()
@@ -179,7 +179,7 @@ task_dur.to_csv('task_durations.csv', index=False, encoding='utf-8-sig')
 
 
 # Итог
-print('ИТОГИ')
+print('Итог')
 print(f'Всего процессов: {len(proc)}')
 print(f'  fulfilled: {(proc["Result"] == "fulfilled").sum()}')
 print(f'  rejected:  {(proc["Result"] == "rejected").sum()}')
